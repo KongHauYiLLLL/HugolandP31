@@ -59,7 +59,7 @@ export const HamburgerMenuPage: React.FC<HamburgerMenuPageProps> = ({
       bgColor: 'from-amber-900/50 to-orange-900/50',
       borderColor: 'border-amber-500/50',
       description: 'Buy and sell items with other adventurers',
-      status: `${gameState.auctionHouse.playerListings.length} active listings`
+      status: `${gameState.auctionHouse?.playerListings?.length ?? 0} active listings`
     },
     {
       id: 'garden',

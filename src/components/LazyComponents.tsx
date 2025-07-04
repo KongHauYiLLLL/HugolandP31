@@ -19,3 +19,4 @@ export const LazySkills = lazy(() => import('./Skills').then(module => ({ defaul
 export const LazyYojefMarket = lazy(() => import('./YojefMarket').then(module => ({ default: module.YojefMarket })));
 export const LazyProgressionPanel = lazy(() => import('./ProgressionPanel').then(module => ({ default: module.ProgressionPanel })));
 export const LazyAdventureSkillSelection = lazy(() => import('./AdventureSkillSelection').then(module => ({ default: module.AdventureSkillSelection })));
+export const LazyAuctionHouse = lazy(() => import('./AuctionHouse').then(module => ({ default: module.AuctionHouse })));

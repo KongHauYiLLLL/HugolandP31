@@ -27,6 +27,7 @@ export interface GameState {
   hasUsedRevival: boolean;
   skills: SkillsSystem;
   adventureSkills: AdventureSkillsState;
+  auctionHouse: AuctionHouse;
 }
 
 export interface PlayerStats {
@@ -282,7 +283,6 @@ export interface GameSettings {
   darkMode: boolean;
   language: 'en' | 'es' | 'fr' | 'de' | 'pt' | 'it' | 'ru' | 'ja' | 'ko' | 'zh';
   notifications: boolean;
-  snapToGrid: boolean;
   beautyMode: boolean;
 }
 
@@ -343,6 +343,33 @@ export interface AdventureSkill {
   name: string;
   description: string;
   type: 'risker' | 'lightning_chain' | 'skip_card' | 'metal_shield' | 'truth_lies' | 'ramp' | 'dodge' | 'berserker' | 'vampiric' | 'phoenix' | 'time_slow' | 'critical_strike' | 'shield_wall' | 'poison_blade' | 'arcane_shield' | 'battle_frenzy' | 'elemental_mastery' | 'shadow_step' | 'healing_aura' | 'double_strike' | 'mana_shield' | 'berserk_rage' | 'divine_protection' | 'storm_call' | 'blood_pact' | 'frost_armor' | 'fireball';
+}
+
+export interface AuctionHouse {
+  playerListings: AuctionListing[];
+  aiListings: AuctionListing[];
+  lastRefresh: Date;
+  nextRefresh: Date;
+}
+
+export interface AuctionListing {
+  id: string;
+  item: Weapon | Armor;
+  startingBid: number;
+  currentBid: number;
+  highestBidder: 'player' | 'ai' | null;
+  timeRemaining: number; // in minutes
+  endTime: Date;
+  isPlayerListing: boolean;
+  aiInterest: 'none' | 'low' | 'medium' | 'high';
+  bids: AuctionBid[];
+}
+
+export interface AuctionBid {
+  bidder: 'player' | 'ai';
+  amount: number;
+  timestamp: Date;
+  bidderName?: string; // For AI bidders
 }
 
 export interface TriviaQuestion {

@@ -8,7 +8,6 @@ import { Research } from './components/Research';
 import { Mining } from './components/Mining';
 import { FloatingIcons } from './components/FloatingIcons';
 import { PWAInstallPrompt } from './components/PWAInstallPrompt';
-import { GridOverlay } from './components/GridOverlay';
 import { EnhancedButton } from './components/EnhancedButton';
 import { TypingInterface } from './components/TypingInterface';
 import { Shield, Package, User, Play, RotateCcw, Brain, Crown, Gift, Pickaxe, Menu, ArrowLeft } from 'lucide-react';
@@ -92,6 +91,9 @@ function App() {
     selectAdventureSkill,
     skipAdventureSkills,
     useSkipCard,
+    listItem,
+    placeBid,
+    claimWonItem,
   } = useGameState();
 
   const [currentView, setCurrentView] = useState<GameView>('stats');
@@ -110,19 +112,20 @@ function App() {
     );
   }
 
-  // Show adventure skill selection modal
-  if (gameState?.adventureSkills?.showSelectionModal && !gameState.inCombat) {
+  // Show adventure skill selection modal - FIXED: Check for both conditions properly
+  if (gameState?.adventureSkills?.showSelectionModal && gameState.adventureSkills.availableSkills.length > 0 && !gameState.inCombat) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <FloatingIcons />
-        <GridOverlay snapToGrid={gameState.settings.snapToGrid} />
-        <Suspense fallback={<LoadingSpinner />}>
-          <LazyAdventureSkillSelection
-            availableSkills={gameState.adventureSkills.availableSkills}
-            onSelectSkill={selectAdventureSkill}
-            onSkipSkills={skipAdventureSkills}
-          />
-        </Suspense>
+        <TypingInterface beautyMode={gameState.settings.beautyMode}>
+          <Suspense fallback={<LoadingSpinner />}>
+            <LazyAdventureSkillSelection
+              availableSkills={gameState.adventureSkills.availableSkills}
+              onSelectSkill={selectAdventureSkill}
+              onSkipSkills={skipAdventureSkills}
+            />
+          </Suspense>
+        </TypingInterface>
       </div>
     );
   }
@@ -146,7 +149,6 @@ function App() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
         <FloatingIcons />
-        <GridOverlay snapToGrid={gameState.settings.snapToGrid} />
         <TypingInterface beautyMode={gameState.settings.beautyMode}>
           <div className="text-center max-w-lg mx-auto relative z-10">
             <div className="mb-8">
@@ -251,6 +253,9 @@ function App() {
               onSetExperience={setExperience}
               onRollSkill={rollSkill}
               onPurchaseRelic={purchaseRelic}
+              onListItem={listItem}
+              onPlaceBid={placeBid}
+              onClaimWonItem={claimWonItem}
               onBack={() => setCurrentView('stats')}
             />
           </Suspense>
@@ -409,6 +414,8 @@ function App() {
           <Inventory
             inventory={gameState.inventory}
             gems={gameState.gems}
+            coins={gameState.coins}
+            auctionHouse={gameState.auctionHouse}
             onEquipWeapon={equipWeapon}
             onEquipArmor={equipArmor}
             onUpgradeWeapon={upgradeWeapon}
@@ -419,6 +426,10 @@ function App() {
             onEquipRelic={equipRelic}
             onUnequipRelic={unequipRelic}
             onSellRelic={sellRelic}
+            onListItem={listItem}
+            onPlaceBid={placeBid}
+            onClaimWonItem={claimWonItem}
+            beautyMode={gameState.settings.beautyMode}
           />
         );
       case 'research':
@@ -588,7 +599,6 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative">
       <FloatingIcons />
-      <GridOverlay snapToGrid={gameState.settings.snapToGrid} />
       
       {/* PWA Install Prompt */}
       <PWAInstallPrompt />

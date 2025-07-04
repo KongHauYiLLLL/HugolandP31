@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sprout, BarChart3, Trophy, TrendingUp, Settings, ArrowLeft, Code, Zap, Package } from 'lucide-react';
+import { Sprout, BarChart3, Trophy, TrendingUp, Settings, ArrowLeft, Code, Zap, Package, Gavel } from 'lucide-react';
 import { GardenOfGrowth } from './GardenOfGrowth';
 import { Statistics } from './Statistics';
 import { Achievements } from './Achievements';
@@ -8,6 +8,7 @@ import { GameSettings } from './GameSettings';
 import { DevTools } from './DevTools';
 import { Skills } from './Skills';
 import { YojefMarket } from './YojefMarket';
+import { AuctionHouse } from './AuctionHouse';
 import { GameState, GameSettings as SettingsType } from '../types/game';
 
 interface HamburgerMenuPageProps {
@@ -23,6 +24,9 @@ interface HamburgerMenuPageProps {
   onSetExperience: (xp: number) => void;
   onRollSkill: () => boolean;
   onPurchaseRelic: (relicId: string) => boolean;
+  onListItem: (itemId: string, itemType: 'weapon' | 'armor', startingBid: number, duration: number) => boolean;
+  onPlaceBid: (listingId: string, bidAmount: number) => boolean;
+  onClaimWonItem: (listingId: string) => boolean;
   onBack: () => void;
 }
 
@@ -39,11 +43,24 @@ export const HamburgerMenuPage: React.FC<HamburgerMenuPageProps> = ({
   onSetExperience,
   onRollSkill,
   onPurchaseRelic,
+  onListItem,
+  onPlaceBid,
+  onClaimWonItem,
   onBack
 }) => {
-  const [activeSection, setActiveSection] = useState<'garden' | 'stats' | 'achievements' | 'progression' | 'settings' | 'devtools' | 'skills' | 'yojef' | null>(null);
+  const [activeSection, setActiveSection] = useState<'garden' | 'stats' | 'achievements' | 'progression' | 'settings' | 'devtools' | 'skills' | 'yojef' | 'auction' | null>(null);
 
   const menuItems = [
+    {
+      id: 'auction',
+      name: 'Auction House',
+      icon: Gavel,
+      color: 'text-amber-400',
+      bgColor: 'from-amber-900/50 to-orange-900/50',
+      borderColor: 'border-amber-500/50',
+      description: 'Buy and sell items with other adventurers',
+      status: `${gameState.auctionHouse.playerListings.length} active listings`
+    },
     {
       id: 'garden',
       name: 'Garden of Growth',
@@ -128,6 +145,20 @@ export const HamburgerMenuPage: React.FC<HamburgerMenuPageProps> = ({
 
   const renderSection = () => {
     switch (activeSection) {
+      case 'auction':
+        return (
+          <AuctionHouse
+            auctionHouse={gameState.auctionHouse}
+            coins={gameState.coins}
+            playerWeapons={gameState.inventory.weapons}
+            playerArmor={gameState.inventory.armor}
+            onListItem={onListItem}
+            onPlaceBid={onPlaceBid}
+            onClaimWonItem={onClaimWonItem}
+            onClose={() => setActiveSection(null)}
+            beautyMode={gameState.settings.beautyMode}
+          />
+        );
       case 'garden':
         return (
           <GardenOfGrowth
@@ -145,6 +176,7 @@ export const HamburgerMenuPage: React.FC<HamburgerMenuPageProps> = ({
             coins={gameState.coins}
             onRollSkill={onRollSkill}
             onClose={() => setActiveSection(null)}
+            beautyMode={gameState.settings.beautyMode}
           />
         );
       case 'yojef':
@@ -226,16 +258,16 @@ export const HamburgerMenuPage: React.FC<HamburgerMenuPageProps> = ({
             <button
               key={item.id}
               onClick={() => setActiveSection(item.id as any)}
-              className={`p-4 sm:p-6 bg-gradient-to-br ${item.bgColor} rounded-lg border-2 ${item.borderColor} hover:scale-105 transition-all duration-200 text-left group shadow-lg`}
+              className={`p-4 sm:p-6 bg-gradient-to-br ${item.bgColor} rounded-lg border-2 ${item.borderColor} hover:scale-105 transition-all duration-200 text-left group shadow-lg ${gameState.settings.beautyMode ? 'shadow-2xl hover:shadow-3xl border-3' : ''}`}
             >
               <div className="flex items-center gap-3 mb-3">
-                <Icon className={`w-6 h-6 sm:w-8 sm:h-8 ${item.color} group-hover:scale-110 transition-transform`} />
+                <Icon className={`w-6 h-6 sm:w-8 sm:h-8 ${item.color} group-hover:scale-110 transition-transform ${gameState.settings.beautyMode ? 'animate-pulse' : ''}`} />
                 <h3 className="text-white font-bold text-sm sm:text-lg">{item.name}</h3>
               </div>
               
               <p className="text-gray-300 text-xs sm:text-sm mb-3">{item.description}</p>
               
-              <div className="bg-black/30 p-2 rounded-lg">
+              <div className={`bg-black/30 p-2 rounded-lg ${gameState.settings.beautyMode ? 'shadow-inner' : ''}`}>
                 <p className={`text-xs font-semibold ${item.color}`}>{item.status}</p>
               </div>
             </button>
@@ -245,7 +277,7 @@ export const HamburgerMenuPage: React.FC<HamburgerMenuPageProps> = ({
 
       {/* Garden Status Preview (if planted) */}
       {gameState.gardenOfGrowth.isPlanted && (
-        <div className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 p-4 sm:p-6 rounded-lg border border-green-500/30">
+        <div className={`bg-gradient-to-r from-green-900/30 to-emerald-900/30 p-4 sm:p-6 rounded-lg border border-green-500/30 ${gameState.settings.beautyMode ? 'shadow-xl border-2 border-green-400/50' : ''}`}>
           <div className="flex items-center gap-3 mb-4">
             <Sprout className="w-6 h-6 text-green-400" />
             <h3 className="text-green-400 font-bold text-lg">🌱 Your Garden</h3>
@@ -281,7 +313,7 @@ export const HamburgerMenuPage: React.FC<HamburgerMenuPageProps> = ({
       )}
 
       {/* Quick Stats Summary */}
-      <div className="bg-black/30 p-4 sm:p-6 rounded-lg border border-gray-600/50">
+      <div className={`bg-black/30 p-4 sm:p-6 rounded-lg border border-gray-600/50 ${gameState.settings.beautyMode ? 'shadow-xl border-2 border-purple-500/30' : ''}`}>
         <h3 className="text-white font-bold text-lg mb-4">📊 Quick Overview</h3>
         
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">

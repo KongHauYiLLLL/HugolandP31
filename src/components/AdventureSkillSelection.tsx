@@ -1,6 +1,7 @@
 import React from 'react';
 import { AdventureSkill } from '../types/game';
 import { Zap, Shield, SkipForward, Heart, Eye, TrendingUp, Badge as Dodge, Sword, Droplets, Flame, Clock, Target, ShieldCheck, Skull, Sparkles, Swords, Wind, Moon, Leaf, Gem, Snowflake, Star, Waves, Sun, Mountain } from 'lucide-react';
+import { EnhancedButton } from './EnhancedButton';
 
 interface AdventureSkillSelectionProps {
   availableSkills: AdventureSkill[];
@@ -79,6 +80,10 @@ export const AdventureSkillSelection: React.FC<AdventureSkillSelectionProps> = (
     }
   };
 
+  if (!availableSkills || availableSkills.length === 0) {
+    return null;
+  }
+
   return (
     <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
       <div className="bg-gradient-to-br from-purple-900 to-indigo-900 p-6 rounded-lg border border-purple-500/50 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
@@ -90,10 +95,11 @@ export const AdventureSkillSelection: React.FC<AdventureSkillSelectionProps> = (
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           {availableSkills.map((skill) => (
-            <button
+            <EnhancedButton
               key={skill.id}
               onClick={() => onSelectSkill(skill)}
-              className={`p-4 rounded-lg border-2 bg-gradient-to-br ${getSkillColor(skill.type)} hover:scale-105 transition-all duration-200`}
+              variant="primary"
+              className={`p-4 rounded-lg border-2 bg-gradient-to-br ${getSkillColor(skill.type)} hover:scale-105 transition-all duration-200 h-auto`}
             >
               <div className="text-center">
                 <div className="mb-3 flex justify-center">
@@ -102,17 +108,17 @@ export const AdventureSkillSelection: React.FC<AdventureSkillSelectionProps> = (
                 <h3 className="text-white font-bold text-lg mb-2">{skill.name}</h3>
                 <p className="text-gray-300 text-sm">{skill.description}</p>
               </div>
-            </button>
+            </EnhancedButton>
           ))}
         </div>
 
         <div className="text-center">
-          <button
+          <EnhancedButton
             onClick={onSkipSkills}
-            className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-500 transition-colors"
+            variant="secondary"
           >
             Skip Skills
-          </button>
+          </EnhancedButton>
         </div>
       </div>
     </div>
